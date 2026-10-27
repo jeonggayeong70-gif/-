@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>옷장 알리미 - 대학생 & 직장인을 위한 맞춤 코디 웹앱</title>
+    <style>
+        /* CSS Reset 및 기본 변수 설정 */
+        :root {
+            --bg-sky: #EBF5FB;          /* 하늘색 배경 */
+            --card-bg: #FFFFFF;         /* 흰색 카드 */
+            --sage-green: #6E8B74;      /* 세이지 그린 (메인 강조 1) */
+            --sage-light: #F0F4F1;      /* 연한 세이지 톤 */
+            --sage-dark: #556B5A;
+            --accent-blue: #2563EB;     /* 블루 계열 (메인 강조 2) */
+            --blue-light: #EFF6FF;      /* 연한 블루 톤 */
+            --text-primary: #1F2937;    /* 주 텍스트 */
+            --text-secondary: #4B5563;  /* 보조 텍스트 */
+            --border-color: #E5E7EB;   /* 테두리 색상 */
+            --highlight-gold: #F59E0B;  /* BEST 뱃지 및 포인트 */
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.04);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-sky);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding: 24px 16px;
+            min-height: 100vh;
+        }
+
+        /* 메인 레이아웃 및 컨테이너 */
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 28px;
+        }
+
+        header h1 {
+            color: var(--sage-green);
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        header p {
+            color: var(--text-secondary);
+            font-size: 1.05rem;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 340px 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 카드 UI 스타일 */
+        .card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 18px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 2px solid var(--sage-light);
+            padding-bottom: 12px;
+        }
+
+        /* 폼 요소 및 레이아웃 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: var(--text-secondary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1.5px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s ease;
+            background-color: #FAFAFA;
+        }
+
+        .form-control:focus {
+            border-color: var(--accent-blue);
+            background-color: #FFFFFF;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-sage {
+            background-color: var(--sage-green);
+            color: white;
+        }
+
+        .btn-sage:hover {
+            background-color: var(--sage-dark);
+            box-shadow: var(--shadow-sm);
+        }
+
+        /* 안내 및 에러 메시지 상자 */
+        .alert-box {
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 16px;
+            display: none;
+            line-height: 1.4;
+        }
+
+        .alert-box.show {
+            display: block;
+        }
+
+        .alert-warning {
+            background-color: #FEF3C7;
+            color: #92400E;
+            border: 1px solid #FCD34D;
+        }
+
+        .alert-info {
+            background-color: var(--blue-light);
+            color: #1E40AF;
+            border: 1px solid #BFDBFE;
+        }
+
+        /* 히스토리 항목 스타일 */
+        .history-list {
+            list-style: none;
+            max-height: 240px;
+            overflow-y: auto;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            border-radius: 8px;
+            background-color: #F9FAFB;
+            margin-bottom: 8px;
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            transition: all 0.2s ease;
+        }
+
+        .history-item:hover {
+            background-color: var(--blue-light);
+            border-color: var(--accent-blue);
+        }
+
+        .history-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .history-date {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+
+        .history-meta {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        /* 코디 추천 카드 레이아웃 */
+        .recommendation-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .weather-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--sage-light);
+            color: var(--sage-green);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 1.05rem;
+        }
+
+        .outfit-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-bottom: 28px;
+        }
+
+        /* 코디 개별 카드 */
+        .outfit-card {
+            background: #FFFFFF;
+            border: 2px solid var(--border-color);
+            border-radius: 14px;
+            padding: 20px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .outfit-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        /* 가장 적절한 코디(BEST) 강조 */
+        .outfit-card.best {
+            border-color: var(--sage-green);
+            background: linear-gradient(180deg, #FFFFFF 0%, #F4F8F6 100%);
+            box-shadow: 0 4px 18px rgba(110, 139, 116, 0.25);
+        }
+
+        .best-badge {
+            position: absolute;
+            top: -12px;
+            right: 16px;
+            background-color: var(--sage-green);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .outfit-card.selected {
+            border-color: var(--accent-blue) !important;
+            box-shadow: 0 0 0 2px var(--accent-blue) !important;
+        }
+
+        .outfit-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .clothing-summary-list {
+            list-style: none;
+            margin-bottom: 16px;
+        }
+
+        .clothing-summary-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+            padding: 6px 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 6px;
+            border: 1px solid #F1F5F9;
+        }
+
+        .category-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background-color: #E2E8F0;
+            color: #475569;
+            flex-shrink: 0;
+        }
+
+        .view-detail-btn {
+            font-size: 0.85rem;
+            color: var(--accent-blue);
+            font-weight: 700;
+            text-align: center;
+            padding-top: 10px;
+            border-top: 1px dashed var(--border-color);
+        }
+
+        /* 착장 상세 및 일러스트 카드 패널 */
+        .detail-panel {
+            background-color: var(--blue-light);
+            border: 1.5px solid #BFDBFE;
+            border-radius: 16px;
+            padding: 24px;
+            display: none;
+        }
+
+        .detail-panel.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .detail-title-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #DBEAFE;
+            padding-bottom: 10px;
+        }
+
+        .detail-title {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #1E40AF;
+        }
+
+        /* 착장 아이템 일러스트 카드 그리드 */
+        .items-illustration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .item-card {
+            background: white;
+            border-radius: 12px;
+            padding: 14px 10px;
+            text-align: center;
+            border: 1px solid #DBEAFE;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .item-icon-wrapper {
+            width: 64px;
+            height: 64px;
+            background-color: #F8FAFC;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #E2E8F0;
+        }
+
+        .item-category-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .item-name-label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* 착장 단계별 상세 가이드 리스트 */
+        .guide-step-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .guide-step-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: #FFFFFF;
+            border-radius: 12px;
+            border: 1px solid #DBEAFE;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .step-number {
+            background-color: var(--accent-blue);
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 800;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .step-text {
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .tip-box {
+            margin-top: 14px;
+            background: #FFFFFF;
+            padding: 14px 18px;
+            border-radius: 10px;
+            border-left: 4px solid var(--accent-blue);
+            font-size: 0.9rem;
+            color: #1E3A8A;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            font-size: 3.5rem;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <!-- 헤더 -->
+    <header>
+        <h1>👔 옷장 알리미</h1>
+        <p>기온과 날씨에 딱 맞는 대학생·직장인 추천 코디 & 착장 일러스트 가이드</p>
+    </header>
+
+    <div class="main-grid">
+        <!-- 좌측: 날짜 & 기온 검색 및 기록 영역 -->
+        <aside>
+            <!-- 검색 입력 카드 -->
+            <div class="card">
+                <h2 class="card-title">🔍 날짜 & 기온 검색</h2>
+                
+                <!-- 예외 처리 및 알림 메세지 상자 -->
+                <div id="alertBox" class="alert-box alert-warning"></div>
+
+                <form id="searchForm" onsubmit="handleSearch(event)">
+                    <div class="form-group">
+                        <label for="inputDate">날짜 선택 (년/월/일)</label>
+                        <input type="date" id="inputDate" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputTemp">오늘의 기온 (°C)</label>
+                        <input type="number" id="inputTemp" class="form-control" placeholder="예: 18" step="0.5" min="-30" max="45" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="inputWeather">날씨 상태</label>
+                        <select id="inputWeather" class="form-control">
+                            <option value="맑음">☀️ 맑음</option>
+                            <option value="구름조금">⛅ 구름조금</option>
+                            <option value="흐림">☁️ 흐림</option>
+                            <option value="비">🌧️ 비</option>
+                            <option value="눈">❄️ 눈 / 한파</option>
+                            <option value="강풍">🌬️ 강풍</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-sage">
+                        코디 추천받기
+                    </button>
+                </form>
+            </div>
+
+            <!-- 검색 이력 목록 카드 -->
+            <div class="card">
+                <h2 class="card-title">📅 최근 검색 날짜 목록</h2>
+                <ul id="historyList" class="history-list">
+                    <!-- 동적 생성됨 -->
+                </ul>
+            </div>
+        </aside>
+
+        <!-- 우측: 코디 추천 및 일러스트 착장 상세 결과 영역 -->
+        <main>
+            <div class="card">
+                <!-- 결과 헤더 -->
+                <div class="recommendation-header">
+                    <h2 class="card-title" style="border:none; margin:0; padding:0;">💡 기온별 추천 코디 목록</h2>
+                    <div id="weatherBadge" class="weather-badge" style="display:none;"></div>
+                </div>
+
+                <!-- 초기 안내 화면 -->
+                <div id="emptyState" class="empty-state">
+                    <div class="empty-icon">🌤️</div>
+                    <h3>검색할 날짜와 기온을 입력해 주세요!</h3>
+                    <p>기온에 적절한 최적의 코디 조합과 단계별 착장 일러스트 가이드를 제공합니다.</p>
+                </div>
+
+                <!-- 코디 추천 카드 목록 (가장 적절한 코디 강조) -->
+                <div id="outfitGrid" class="outfit-grid" style="display:none;"></div>
+
+                <!-- 착장 상세 안내 및 일러스트 카드 영역 -->
+                <div id="detailPanel" class="detail-panel">
+                    <div class="detail-title-bar">
+                        <h3 class="detail-title" id="detailOutfitName">👕 선택한 코디 착장 상세 가이드</h3>
+                        <span style="font-size:0.85rem; color:#1D4ED8; font-weight:700;">단계별 착장 순서</span>
+                    </div>
+                    
+                    <!-- 1. 일러스트 아이콘 착장 카드가 표시되는 영역 -->
+                    <div class="items-illustration-grid" id="itemsIllustrationGrid"></div>
+
+                    <!-- 2. 단계별 착장 순서 텍스트 가이드 -->
+                    <div class="guide-step-list" id="guideStepList"></div>
+
+                    <!-- 3. 날씨별 스마트 추가 팁 -->
+                    <div class="tip-box" id="weatherTipBox"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+<script>
+    /**
+     * 의류 아이템별 인라인 SVG 일러스트 모음
+     */
+    const svgIcons = {
+        // 아우터
+        PADDING: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M16 16L24 10H40L48 16V56H16V16Z" fill="#3B82F6"/><path d="M16 26H48M16 36H48M16 46H48" stroke="#FFFFFF" stroke-width="2.5"/><path d="M32 10V56" stroke="#1D4ED8" stroke-width="2.5"/></svg>`,
+        COAT: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M14 16L24 10H40L50 16V58H36V32H28V58H14V16Z" fill="#475569"/><path d="M24 10L32 26L40 10" stroke="#94A3B8" stroke-width="2.5"/></svg>`,
+        TRENCH: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M14 16L24 10H40L50 16V58H36V34H28V58H14V16Z" fill="#D97706"/><path d="M16 30H48" stroke="#B45309" stroke-width="3"/></svg>`,
+        JACKET: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M14 16L24 10H40L50 16V50H14V16Z" fill="#64748B"/><path d="M24 10L32 24L40 10" stroke="#CBD5E1" stroke-width="2.5"/></svg>`,
+        CARDIGAN: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M14 16L24 10H40L50 16V48H14V16Z" fill="#7D9D8C"/><path d="M24 10L32 24L40 10" stroke="#FFFFFF" stroke-width="2"/><circle cx="32" cy="30" r="2" fill="#FFFFFF"/><circle cx="32" cy="38" r="2" fill="#FFFFFF"/></svg>`,
+        FLEECE: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M14 16L24 10H40L50 16V50H14V16Z" fill="#E2E8F0"/><path d="M32 10V50" stroke="#94A3B8" stroke-width="2.5"/></svg>`,
+        
+        // 상의
+        NEAT: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M12 18L24 12H40L52 18V48H12V18Z" fill="#1E3A8A"/><path d="M24 12C24 18 40 18 40 12" stroke="#60A5FA" stroke-width="2"/></svg>`,
+        SWEATSHIRT: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M12 18L24 12H40L52 18V48H12V18Z" fill="#64748B"/><path d="M26 12L32 18L38 12" stroke="#94A3B8" stroke-width="2"/></svg>`,
+        SHIRT: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M14 18L24 12H40L50 18V50H14V18Z" fill="#FFFFFF" stroke="#CBD5E1" stroke-width="2"/><path d="M24 12L32 20L40 12" stroke="#94A3B8" stroke-width="2"/><path d="M32 20V50" stroke="#CBD5E1" stroke-width="1.5"/></svg>`,
+        TSHIRT_SHORT: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M12 18L22 12H42L52 18L46 30H40V50H24V30H18L12 18Z" fill="#10B981"/></svg>`,
+        TSHIRT_LONG: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M12 18L24 12H40L52 18V48H12V18Z" fill="#7D9D8C"/></svg>`,
+        TURTLENECK: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><rect x="25" y="6" width="14" height="10" rx="2" fill="#1E293B"/><path d="M12 18L24 14H40L52 18V50H12V18Z" fill="#1E293B"/></svg>`,
+
+        // 하의
+        SLACKS: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M20 12H44L40 56H33L32 26L31 56H24L20 12Z" fill="#334155"/></svg>`,
+        JEANS: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M20 12H44L41 56H33L32 26L31 56H23L20 12Z" fill="#2563EB"/><path d="M20 18H44" stroke="#60A5FA" stroke-width="2"/></svg>`,
+        SHORTS: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M20 12H44L42 34H33L32 22L31 34H22L20 12Z" fill="#0284C7"/></svg>`,
+        CHINO: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M20 12H44L40 56H33L32 26L31 56H24L20 12Z" fill="#D97706"/></svg>`,
+
+        // 신발
+        SNEAKERS: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M12 36C12 30 20 24 34 24H52V42H12V36Z" fill="#FFFFFF" stroke="#94A3B8" stroke-width="2"/><rect x="12" y="42" width="40" height="6" rx="2" fill="#64748B"/></svg>`,
+        LOAFERS: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M14 36C14 32 22 28 36 28H50V42H14V36Z" fill="#475569"/><rect x="14" y="42" width="36" height="4" fill="#1E293B"/></svg>`,
+        BOOTS: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M20 16H36V34L48 36V46H20V16Z" fill="#1E293B"/></svg>`,
+
+        // 액세서리 / 기타
+        MUFFLER: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M16 16C16 12 48 12 48 16V24C48 28 16 28 16 24V16Z" fill="#7D9D8C"/><path d="M38 24V50M44 24V46" stroke="#556B5A" stroke-width="4"/></svg>`,
+        UMBRELLA: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><path d="M12 32C12 20 20 12 32 12C44 12 52 20 52 32H12Z" fill="#3B82F6"/><path d="M32 12V48C32 52 28 52 26 50" stroke="#1D4ED8" stroke-width="3"/></svg>`,
+        NONE: `<svg width="40" height="40" viewBox="0 0 64 64" fill="none"><circle cx="32" cy="32" r="18" stroke="#CBD5E1" stroke-width="3"/><path d="M20 20L44 44" stroke="#CBD5E1" stroke-width="3"/></svg>`
+    };
+
+    /**
+     * 기온대별 룩북 코디 데이터베이스
+     */
+    const outfitDatabase = [
+        {
+            minTemp: 28,
+            maxTemp: 100,
+            tag: "한여름 / 무더위",
+            combos: [
+                {
+                    name: "시원한 반팔 숏 룩",
+                    isBest: true,
+                    outer: { name: "없음", icon: "NONE" },
+                    top: { name: "린넨 반팔티", icon: "TSHIRT_SHORT" },
+                    bottom: { name: "반바지 (데님/면)", icon: "SHORTS" },
+                    shoes: { name: "캔버스 스니커즈", icon: "SNEAKERS" },
+                    acc: "손풍기 / 선글라스"
+                },
+                {
+                    name: "쿨비즈 린넨 룩",
+                    isBest: false,
+                    outer: { name: "없음", icon: "NONE" },
+                    top: { name: "반팔 린넨 셔츠", icon: "SHIRT" },
+                    bottom: { name: "쿨 슬랙스", icon: "SLACKS" },
+                    shoes: { name: "가벼운 로퍼", icon: "LOAFERS" },
+                    acc: "손목시계"
+                }
+            ]
+        },
+        {
+            minTemp: 23,
+            maxTemp: 27,
+            tag: "초여름 / 따뜻함",
+            combos: [
+                {
+                    name: "캠퍼스 피케 룩",
+                    isBest: true,
+                    outer: { name: "가벼운 가디건 (지참)", icon: "CARDIGAN" },
+                    top: { name: "반팔 피케 카라티", icon: "TSHIRT_SHORT" },
+                    bottom: { name: "연청 데님 팬츠", icon: "JEANS" },
+                    shoes: { name: "화이트 스니커즈", icon: "SNEAKERS" },
+                    acc: "에코백"
+                },
+                {
+                    name: "깔끔한 셔츠 룩",
+                    isBest: false,
+                    outer: { name: "없음", icon: "NONE" },
+                    top: { name: "칠부/긴팔 린넨 셔츠", icon: "SHIRT" },
+                    bottom: { name: "치노 팬츠", icon: "CHINO" },
+                    shoes: { name: "더비 슈즈", icon: "LOAFERS" },
+                    acc: "가죽 시계"
+                }
+            ]
+        },
+        {
+            minTemp: 20,
+            maxTemp: 22,
+            tag: "완연한 봄 · 가을",
+            combos: [
+                {
+                    name: "롱슬리브 데일리 룩",
+                    isBest: true,
+                    outer: { name: "없음", icon: "NONE" },
+                    top: { name: "순면 긴팔 티셔츠", icon: "TSHIRT_LONG" },
+                    bottom: { name: "테이퍼드 슬랙스", icon: "SLACKS" },
+                    shoes: { name: "스니커즈", icon: "SNEAKERS" },
+                    acc: "백팩"
+                },
+                {
+                    name: "오버핏 셔츠 레이어드",
+                    isBest: false,
+                    outer: { name: "오버핏 옥스포드 셔츠", icon: "SHIRT" },
+                    top: { name: "이너 반팔티", icon: "TSHIRT_SHORT" },
+                    bottom: { name: "중청 청바지", icon: "JEANS" },
+                    shoes: { name: "러닝화", icon: "SNEAKERS" },
+                    acc: "볼캡"
+                }
+            ]
+        },
+        {
+            minTemp: 17,
+            maxTemp: 19,
+            tag: "선선한 날씨",
+            combos: [
+                {
+                    name: "캐주얼 맨투맨 룩",
+                    isBest: true,
+                    outer: { name: "없음", icon: "NONE" },
+                    top: { name: "헤비 핏 맨투맨", icon: "SWEATSHIRT" },
+                    bottom: { name: "스트레이트 데님", icon: "JEANS" },
+                    shoes: { name: "운동화", icon: "SNEAKERS" },
+                    acc: "캔버스 백"
+                },
+                {
+                    name: "가디건 댄디 룩",
+                    isBest: false,
+                    outer: { name: "니트 가디건", icon: "CARDIGAN" },
+                    top: { name: "드레스 셔츠", icon: "SHIRT" },
+                    bottom: { name: "다크 슬랙스", icon: "SLACKS" },
+                    shoes: { name: "로퍼", icon: "LOAFERS" },
+                    acc: "토트백"
+                }
+            ]
+        },
+        {
+            minTemp: 12,
+            maxTemp: 16,
+            tag: "쌀쌀한 환절기",
+            combos: [
+                {
+                    name: "자켓 레이어드 룩",
+                    isBest: true,
+                    outer: { name: "테일러드 자켓", icon: "JACKET" },
+                    top: { name: "라운드 니트", icon: "NEAT" },
+                    bottom: { name: "슬림핏 슬랙스", icon: "SLACKS" },
+                    shoes: { name: "더비 로퍼", icon: "LOAFERS" },
+                    acc: "숄더백"
+                },
+                {
+                    name: "클래식 트렌치 룩",
+                    isBest: false,
+                    outer: { name: "트렌치 코트", icon: "TRENCH" },
+                    top: { name: "옥스포드 셔츠", icon: "SHIRT" },
+                    bottom: { name: "치노 바지", icon: "CHINO" },
+                    shoes: { name: "스니커즈", icon: "SNEAKERS" },
+                    acc: "가죽 가방"
+                }
+            ]
+        },
+        {
+            minTemp: 9,
+            maxTemp: 11,
+            tag: "초겨울 / 쌀쌀함",
+            combos: [
+                {
+                    name: "플리스 덤블 집업 룩",
+                    isBest: true,
+                    outer: { name: "플리스 아우터", icon: "FLEECE" },
+                    top: { name: "기모 맨투맨", icon: "SWEATSHIRT" },
+                    bottom: { name: "진청 데님", icon: "JEANS" },
+                    shoes: { name: "운동화", icon: "SNEAKERS" },
+                    acc: "비니 모자"
+                },
+                {
+                    name: "숏패딩 활동 룩",
+                    isBest: false,
+                    outer: { name: "경량/숏 패딩", icon: "PADDING" },
+                    top: { name: "두꺼운 니트", icon: "NEAT" },
+                    bottom: { name: "슬랙스", icon: "SLACKS" },
+                    shoes: { name: "캐주얼 단화", icon: "LOAFERS" },
+                    acc: "핫팩"
+                }
+            ]
+        },
+        {
+            minTemp: 5,
+            maxTemp: 8,
+            tag: "추운 날씨",
+            combos: [
+                {
+                    name: "울 코트 댄디 룩",
+                    isBest: true,
+                    outer: { name: "울 싱글 코트", icon: "COAT" },
+                    top: { name: "터틀넥(목폴라) 니트", icon: "TURTLENECK" },
+                    bottom: { name: "울 슬랙스", icon: "SLACKS" },
+                    shoes: { name: "가죽 워커/구두", icon: "BOOTS" },
+                    acc: "울 머플러"
+                },
+                {
+                    name: "헤비 패딩 캐주얼",
+                    isBest: false,
+                    outer: { name: "숏 숏패딩", icon: "PADDING" },
+                    top: { name: "기모 후드티", icon: "SWEATSHIRT" },
+                    bottom: { name: "두꺼운 청바지", icon: "JEANS" },
+                    shoes: { name: "방한 운동화", icon: "SNEAKERS" },
+                    acc: "방한 장갑"
+                }
+            ]
+        },
+        {
+            minTemp: -100,
+            maxTemp: 4,
+            tag: "한파 / 극추위",
+            combos: [
+                {
+                    name: "롱패딩 방한 최우선 룩",
+                    isBest: true,
+                    outer: { name: "헤비 롱패딩", icon: "PADDING" },
+                    top: { name: "목폴라 + 두꺼운 니트", icon: "TURTLENECK" },
+                    bottom: { name: "기모 본딩 바지", icon: "SLACKS" },
+                    shoes: { name: "방한 부츠", icon: "BOOTS" },
+                    acc: "두꺼운 목도리 & 장갑"
+                },
+                {
+                    name: "헤비 코트 레이어드",
+                    isBest: false,
+                    outer: { name: "두꺼운 울 코트", icon: "COAT" },
+                    top: { name: "경량패딩 조끼 + 니트", icon: "NEAT" },
+                    bottom: { name: "기모 데님", icon: "JEANS" },
+                    shoes: { name: "방한화", icon: "BOOTS" },
+                    acc: "핫팩 + 목도리"
+                }
+            ]
+        }
+    ];
+
+    // 상태 관리 데이터
+    let searchHistory = [];
+    let currentCombos = [];
+    let currentWeatherInfo = {};
+
+    // 페이지 시작 로직
+    window.onload = function() {
+        // 오늘 날짜 기본 세팅
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('inputDate').value = today;
+    };
+
+    /**
+     * 예외 처리 메시지 알림 상자 렌더링
+     */
+    function showAlert(message, type = 'warning') {
+        const alertBox = document.getElementById('alertBox');
+        alertBox.className = `alert-box alert-${type} show`;
+        alertBox.innerHTML = `⚠️ ${message}`;
+        
+        setTimeout(() => {
+            alertBox.classList.remove('show');
+        }, 3500);
+    }
+
+    /**
+     * 검색 폼 제출 핸들러 (날짜 검증, 기온 계산, 예외 처리)
+     */
+    function handleSearch(event) {
+        event.preventDefault();
+
+        const dateVal = document.getElementById('inputDate').value;
+        const tempVal = parseFloat(document.getElementById('inputTemp').value);
+        const weatherVal = document.getElementById('inputWeather').value;
+
+        // 예외 처리 1: 날짜 누락
+        if (!dateVal) {
+            showAlert('날짜를 올바르게 입력해 주세요.');
+            return;
+        }
+
+        // 예외 처리 2: 기온 누락 또는 유효 범위 초과
+        if (isNaN(tempVal)) {
+            showAlert('오늘의 기온을 숫자로 입력해 주세요.');
+            return;
+        }
+
+        if (tempVal < -30 || tempVal > 45) {
+            showAlert('기온은 -30°C ~ 45°C 사이 범위만 계산 가능합니다.');
+            return;
+        }
+
+        // 기온대별 코디 정렬 검색
+        const outfitGroup = outfitDatabase.find(item => tempVal >= item.minTemp && tempVal <= item.maxTemp);
+
+        if (!outfitGroup || !outfitGroup.combos || outfitGroup.combos.length === 0) {
+            showAlert('해당 날짜/기온에 계산 가능한 옷이 부족하여 기본 코디를 추천합니다.', 'info');
+        }
+
+        currentCombos = outfitGroup ? outfitGroup.combos : outfitDatabase[2].combos;
+        currentWeatherInfo = {
+            date: dateVal,
+            temp: tempVal,
+            weather: weatherVal,
+            tag: outfitGroup ? outfitGroup.tag : "기본 추천"
+        };
+
+        // 검색 이력 저장 및 렌더링
+        addHistory(currentWeatherInfo);
+        renderOutfits(currentCombos, currentWeatherInfo);
+    }
+
+    /**
+     * 날짜 검색 목록 이력 추가 및 처리
+     */
+    function addHistory(info) {
+        // 중복 입력 날짜 제거 후 상단 추가
+        searchHistory = searchHistory.filter(item => item.date !== info.date);
+        searchHistory.unshift(info);
+
+        const historyListEl = document.getElementById('historyList');
+        historyListEl.innerHTML = '';
+
+        searchHistory.forEach((item) => {
+            const li = document.createElement('li');
+            li.className = 'history-item';
+            li.onclick = () => loadHistoryItem(item);
+            li.innerHTML = `
+                <div class="history-info">
+                    <span class="history-date">${item.date}</span>
+                    <span class="history-meta">${item.weather} (${item.temp}°C)</span>
+                </div>
+                <span style="font-size:0.8rem; color:var(--sage-green); font-weight:700;">조회하기</span>
+            `;
+            historyListEl.appendChild(li);
+        });
+    }
+
+    function loadHistoryItem(item) {
+        document.getElementById('inputDate').value = item.date;
+        document.getElementById('inputTemp').value = item.temp;
+        document.getElementById('inputWeather').value = item.weather;
+        
+        const fakeEvent = { preventDefault: () => {} };
+        handleSearch(fakeEvent);
+    }
+
+    /**
+     * 추천 코디 카드 목록 화면 출력 (가장 적절한 코디 BEST 강조)
+     */
+    function renderOutfits(combos, weatherInfo) {
+        document.getElementById('emptyState').style.display = 'none';
+        
+        const weatherBadge = document.getElementById('weatherBadge');
+        weatherBadge.style.display = 'inline-flex';
+        weatherBadge.innerHTML = `<span>${weatherInfo.weather}</span> <strong>${weatherInfo.temp}°C</strong> <span style="font-size:0.85rem; font-weight:normal;">[${weatherInfo.tag}]</span>`;
+
+        const outfitGrid = document.getElementById('outfitGrid');
+        outfitGrid.style.display = 'grid';
+        outfitGrid.innerHTML = '';
+
+        combos.forEach((combo, idx) => {
+            const card = document.createElement('div');
+            card.className = `outfit-card ${combo.isBest ? 'best' : ''}`;
+            card.onclick = () => selectOutfit(idx);
+
+            let bestBadgeHtml = combo.isBest ? `<span class="best-badge">⭐ BEST 추천 코디</span>` : '';
+
+            card.innerHTML = `
+                ${bestBadgeHtml}
+                <div>
+                    <div class="outfit-title">${combo.name}</div>
+                    <ul class="clothing-summary-list">
+                        <li class="clothing-summary-item"><span class="category-tag">외투</span> ${combo.outer.name}</li>
+                        <li class="clothing-summary-item"><span class="category-tag">상의</span> ${combo.top.name}</li>
+                        <li class="clothing-summary-item"><span class="category-tag">하의</span> ${combo.bottom.name}</li>
+                        <li class="clothing-summary-item"><span class="category-tag">신발</span> ${combo.shoes.name}</li>
+                    </ul>
+                </div>
+                <div class="view-detail-btn">
+                    👆 클릭하여 일러스트 착장 순서 보기
+                </div>
+            `;
+            outfitGrid.appendChild(card);
+        });
+
+        // 첫 번째 (기본 BEST) 코디 자동 선택
+        selectOutfit(0);
+    }
+
+    /**
+     * 코디 선택 시 일러스트 아이콘 카드 & 착장 순서 안내 렌더링
+     */
+    function selectOutfit(index) {
+        const combo = currentCombos[index];
+        if (!combo) return;
+
+        const detailPanel = document.getElementById('detailPanel');
+        const itemsGrid = document.getElementById('itemsIllustrationGrid');
+        const stepList = document.getElementById('guideStepList');
+        const tipBox = document.getElementById('weatherTipBox');
+
+        // 카드 선택 스타일 적용
+        const cards = document.querySelectorAll('.outfit-card');
+        cards.forEach((c, idx) => {
+            if (idx === index) {
+                c.classList.add('selected');
+            } else {
+                c.classList.remove('selected');
+            }
+        });
+
+        document.getElementById('detailOutfitName').innerText = `👕 추천 룩: ${combo.name}`;
+
+        // 1. 착장 아이템 일러스트 카드 생성
+        const items = [
+            { category: "하의", data: combo.bottom },
+            { category: "상의", data: combo.top },
+            { category: "외투", data: combo.outer },
+            { category: "신발", data: combo.shoes }
+        ];
+
+        itemsGrid.innerHTML = '';
+        items.forEach(item => {
+            const iconSvg = svgIcons[item.data.icon] || svgIcons.NONE;
+            const itemCard = document.createElement('div');
+            itemCard.className = 'item-card';
+            itemCard.innerHTML = `
+                <div class="item-icon-wrapper">
+                    ${iconSvg}
+                </div>
+                <span class="item-category-label">${item.category}</span>
+                <span class="item-name-label">${item.data.name}</span>
+            `;
+            itemsGrid.appendChild(itemCard);
+        });
+
+        // 2. 착장 순서 텍스트 가이드 렌더링
+        stepList.innerHTML = `
+            <div class="guide-step-item">
+                <div class="step-number">1</div>
+                <div class="step-text"><b>하의 착용:</b> 하의로 [<b>${combo.bottom.name}</b>]를 편안하게 착용합니다.</div>
+            </div>
+            <div class="guide-step-item">
+                <div class="step-number">2</div>
+                <div class="step-text"><b>상의 착용:</b> 상의로 [<b>${combo.top.name}</b>]를 핏에 맞춰 정리해 입습니다.</div>
+            </div>
+            <div class="guide-step-item">
+                <div class="step-number">3</div>
+                <div class="step-text"><b>외투 걸치기:</b> ${combo.outer.name !== '없음' ? `아우터로 [<b>${combo.outer.name}</b>]를 레이어드하여 체온을 보호합니다.` : '별도 겉옷 없이 단정하게 마무리합니다.'}</div>
+            </div>
+            <div class="guide-step-item">
+                <div class="step-number">4</div>
+                <div class="step-text"><b>신발 & 소품:</b> [<b>${combo.shoes.name}</b>]을 신으시고, [<b>${combo.acc}</b>] 아이템을 함께 챙겨 외출하세요!</div>
+            </div>
+        `;
+
+        // 3. 날씨별 기온/강수 예외 팁 안내
+        let tipText = "";
+        const w = currentWeatherInfo.weather;
+        const t = currentWeatherInfo.temp;
+
+        if (w === '비') {
+            tipText = `🌧️ <b>우천 대비 안내:</b> 비 소식이 있습니다! 우산(${svgIcons.UMBRELLA})을 꼭 챙기시고, 젖기 쉬운 신발이나 긴 린넨 바지는 피하시는 것을 권장합니다.`;
+        } else if (w === '눈' || t <= 2) {
+            tipText = `❄️ <b>한파 / 빙판길 안내:</b> 도로가 미끄러울 수 있으니 미끄럼 방지 신발을 신으시고, 방한 장갑과 목도리를 지참하세요.`;
+        } else if (w === '강풍') {
+            tipText = `🌬️ <b>강풍 주의:</b> 바람이 강하게 불어 체감 온도가 낮습니다. 깃이 있는 아우터를 챙기시는 것이 좋습니다.`;
+        } else if (t >= 28) {
+            tipText = `☀️ <b>폭염 대비:</b> 실내 에어컨 냉방에 대비해 얇은 가디건이나 셔츠를 백팩에 휴대하는 것을 추천합니다.`;
+        } else {
+            tipText = `✨ <b>적정 외출 날씨:</b> 외출하기 쾌적한 날씨입니다. 즐거운 하루 되세요!`;
+        }
+
+        tipBox.innerHTML = tipText;
+        detailPanel.classList.add('active');
+    }
+</script>
+</body>
+</html>
+```
+
+요청하신 대로 이미지 링크/Canvas 방식 대신 **의류 종류별 플랫 일러스트 아이콘(Vector SVG)** 형태의 카드 뷰 및 착장 가이드를 단일 HTML 파일로 구성했습니다. 오른쪽 우상단의 **`Preview`** 버튼을 눌러 테스트해보실 수 있습니다.
